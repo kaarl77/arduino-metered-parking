@@ -4,19 +4,19 @@
 
 //HCSR04 IN sensor
 const int trigPin1 = 9;
-const int echoPin1 = 10;
-const int switchPin1 = 11;
+const int echoPin1 = 15;
+const int switchPin1 = 16;
 
 //HCSR04 OUT sensor
 const int trigPin2 = 8;
-const int echoPin2 = 6;
-const int switchPin2 = 5;
+const int echoPin2 = 14;
+const int switchPin2 = 17;
 
 //SERVO MOTOR
 const int servoPin = 7;
 
 //LCD
-LiquidCrystal lcd(14,15,16,17,18,19);
+LiquidCrystal lcd(12,11,5,4,3,2);
 
 //STATES & FLAGS
 int switchState1 = 0;
@@ -39,7 +39,7 @@ void openGate() {
 }
 
 void closeGate() {
-  myServo.write(45);
+  myServo.write(90);
 }
 
 int objectInProximity(HCSR04* sensor) {
@@ -58,6 +58,10 @@ void setup() {
   pinMode(switchPin1, INPUT);
   pinMode(switchPin2, INPUT);
 
+  // lcd.begin(16, 2);
+  //   lcd.print("hello, world!");
+
+
   myServo.attach(servoPin);
   closeGate();
   Serial.begin(9600);
@@ -66,6 +70,12 @@ void setup() {
 }
 
 void loop() {
+  lcd.setCursor(0, 1);
+  lcd.print("Spots: ");
+  lcd.print(carSpotsLeft);
+
+
+
   switchState1 = digitalRead(switchPin1);
   switchState2 = digitalRead(switchPin2);
 

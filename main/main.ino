@@ -12,6 +12,11 @@ const int trigPin2 = 8;
 const int echoPin2 = 14;
 const int switchPin2 = 17;
 
+//LEDs
+const int parkingFullLed = 13;
+const int spotsAvailableLed = 6;
+
+
 //SERVO MOTOR
 const int servoPin = 7;
 
@@ -57,11 +62,8 @@ void setup() {
   pinMode(echoPin1, INPUT);
   pinMode(switchPin1, INPUT);
   pinMode(switchPin2, INPUT);
-
-  // lcd.begin(16, 2);
-  //   lcd.print("hello, world!");
-
-
+  pinMode(parkingFullLed, OUTPUT);
+  pinMode(spotsAvailableLed, OUTPUT);
   myServo.attach(servoPin);
   closeGate();
   Serial.begin(9600);
@@ -75,12 +77,21 @@ void loop() {
   lcd.print(carSpotsLeft);
 
 
+  if(carSpotsLeft==0){
+    digitalWrite(parkingFullLed, HIGH);
+    digitalWrite(spotsAvailableLed, LOW);
+  } 
+  else{
+    digitalWrite(parkingFullLed, LOW);
+    digitalWrite(spotsAvailableLed, HIGH);
+  }
+
 
   switchState1 = digitalRead(switchPin1);
   switchState2 = digitalRead(switchPin2);
 
+//a car is trying to enter
   if (switchState1 == HIGH && !shouldMeasure) {
-    // Serial.println("Car tryin to come in");
     shouldMeasure = 1;
     shouldOpenGate = 0;  // Reset gate flag whenever a new measurement session starts
     carIn = 1;
@@ -89,8 +100,14 @@ void loop() {
     stopTime = startTime + 2000;
   }
 
+  if (switchState2 == HIGH){
+    Serial.println("Button pressed ");
+  }
+
+
+//a car is trying to exit
   if (switchState2 == HIGH && !shouldMeasure) {
-    // Serial.println("Car trying to come out");
+    Serial.println("TRYING TO EXIT");
     shouldMeasure = 1;
     shouldOpenGate = 0;
     carIn = 0;
@@ -99,6 +116,7 @@ void loop() {
     stopTime = startTime + 2000;
   }
 
+//timer for car going in or out
   if (millis() <= stopTime) {
     if (shouldMeasure) {
       if (carIn && carSpotsLeft) {
@@ -120,8 +138,8 @@ void loop() {
     shouldMeasure = 0;
   }
 
+//conditions were met, gate should be open
   if (shouldOpenGate) {
-    // Serial.println("Should open gate");
     openGate();
   
     unsigned long endTime = millis() + 3000;
